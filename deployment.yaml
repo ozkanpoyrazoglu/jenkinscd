@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-flaskapp
+  name: test-flaskapp
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: test-flaskapp
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: test-flaskapp
+    spec:
+      containers:
+      - image: ozkanpoyrazoglu/ozkantest3:12
+        name: ozkanflask-1
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources: {}
+        volumeMounts:
+        - mountPath: /certificates
+          name: certificates-folder
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        type: master
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: type
+        operator: Equal
+        value: master
+      volumes:
+      - hostPath:
+          path: /etc/kubernetes/pki
+          type: ""
